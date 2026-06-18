@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>宏源汽车服务</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 小程序端模拟（H5版，可嵌入微信小程序 WebView） -->
+    <div id="wxApp">
+        <!-- 底部导航 -->
+        <div class="tab-bar">
+            <div class="tab-item active" data-tab="home" onclick="switchTab('home', this)">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </div>
+            <div class="tab-item" data-tab="appoint" onclick="switchTab('appoint', this)">
+                <i class="fas fa-calendar-check"></i>
+                <span>预约</span>
+            </div>
+            <div class="tab-item" data-tab="orders" onclick="switchTab('orders', this)">
+                <i class="fas fa-clipboard-list"></i>
+                <span>我的工单</span>
+            </div>
+            <div class="tab-item" data-tab="profile" onclick="switchTab('profile', this)">
+                <i class="fas fa-user"></i>
+                <span>我的</span>
+            </div>
+        </div>
+
+        <!-- 首页 -->
+        <div id="tab-home" class="tab-page active">
+            <div class="wx-header">
+                <h1><i class="fas fa-car"></i> 宏源汽车服务</h1>
+                <p>专业快修 · 透明服务 · 社区信赖</p>
+            </div>
+            <div class="wx-banner">
+                <div class="banner-item active">
+                    <h3>🔧 快保特惠</h3>
+                    <p>全合成机油+机滤 仅需¥268</p>
+                </div>
+                <div class="banner-item">
+                    <h3>🛞 轮胎优惠</h3>
+                    <p>米其林轮胎 买三送一</p>
+                </div>
+                <div class="banner-item">
+                    <h3>🔋 电瓶检测</h3>
+                    <p>免费检测 以旧换新</p>
+                </div>
+            </div>
+            <div class="wx-services">
+                <h3 class="section-title">服务项目</h3>
+                <div class="service-grid">
+                    <div class="service-item" onclick="quickAppoint('小保养')">
+                        <div class="service-icon" style="background:#e8f0fe"><i class="fas fa-oil-can" style="color:#1a73e8"></i></div>
+                        <span>小保养</span>
+                    </div>
+                    <div class="service-item" onclick="quickAppoint('轮胎更换')">
+                        <div class="service-icon" style="background:#e6f4ea"><i class="fas fa-tire" style="color:#0d904f"></i></div>
+                        <span>轮胎更换</span>
+                    </div>
+                    <div class="service-item" onclick="quickAppoint('电瓶更换')">
+                        <div class="service-icon" style="background:#fef3e0"><i class="fas fa-battery-full" style="color:#e8710a"></i></div>
+                        <span>电瓶更换</span>
+                    </div>
+                    <div class="service-item" onclick="quickAppoint('四轮定位')">
+                        <div class="service-icon" style="background:#fce8e6"><i class="fas fa-align-left" style="color:#d93025"></i></div>
+                        <span>四轮定位</span>
+                    </div>
+                    <div class="service-item" onclick="quickAppoint('刹车片更换')">
+                        <div class="service-icon" style="background:#e8f0fe"><i class="fas fa-tools" style="color:#1a73e8"></i></div>
+                        <span>刹车片</span>
+                    </div>
+                    <div class="service-item" onclick="quickAppoint('底盘检修')">
+                        <div class="service-icon" style="background:#e6f4ea"><i class="fas fa-car-side" style="color:#0d904f"></i></div>
+                        <span>底盘检修</span>
+                    </div>
+                </div>
+            </div>
+            <div class="wx-contact">
+                <h3 class="section-title">联系我们</h3>
+                <div class="contact-list">
+                    <div class="contact-item">
+                        <i class="fas fa-phone" style="color:#1a73e8"></i>
+                        <span>022-XXXX-XXXX</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt" style="color:#d93025"></i>
+                        <span>天津市XX区XX路XX号</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-clock" style="color:#0d904f"></i>
+                        <span>营业时间：08:00 - 20:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 预约 -->
+        <div id="tab-appoint" class="tab-page">
+            <div class="wx-header">
+                <h1>在线预约</h1>
+            </div>
+            <div class="form-container">
+                <div class="form-group">
+                    <label>服务类型</label>
+                    <select id="wxServiceType">
+                        <option value="小保养">小保养（换油+机滤）</option>
+                        <option value="大保养">大保养（机油+三滤）</option>
+                        <option value="轮胎更换">轮胎更换/修补</option>
+                        <option value="电瓶更换">电瓶更换</option>
+                        <option value="四轮定位">四轮定位</option>
+                        <option value="刹车片更换">刹车片更换</option>
+                        <option value="底盘检修">底盘件检修</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>车牌号</label>
+                    <input type="text" id="wxPlate" placeholder="请输入车牌号">
+                </div>
+                <div class="form-group">
+                    <label>预约时间</label>
+                    <input type="datetime-local" id="wxAppointTime">
+                </div>
+                <div class="form-group">
+                    <label>备注说明</label>
+                    <textarea id="wxAppointRemark" rows="3" placeholder="请描述故障或需求"></textarea>
+                </div>
+                <button class="btn-primary full-width" onclick="submitAppoint()">
+                    <i class="fas fa-check"></i> 提交预约
+                </button>
+            </div>
+        </div>
+
+        <!-- 我的工单 -->
+        <div id="tab-orders" class="tab-page">
+            <div class="wx-header">
+                <h1>我的工单</h1>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="wxOrderNo" placeholder="输入工单号查询进度" oninput="searchOrder()">
+            </div>
+            <div id="wxOrderResult" class="order-result hidden">
+                <div class="order-card">
+                    <div class="order-header">
+                        <span class="order-no"></span>
+                        <span class="status-badge"></span>
+                    </div>
+                    <div class="order-info">
+                        <p><i class="fas fa-car"></i> <span class="order-car"></span></p>
+                        <p><i class="fas fa-user"></i> <span class="order-customer"></span></p>
+                    </div>
+                    <div class="order-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-steps">
+                            <span>接车</span>
+                            <span>维修中</span>
+                            <span>完工</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="wxOrderEmpty" class="empty-state">
+                <i class="fas fa-clipboard-list"></i>
+                <p>输入工单号查看维修进度</p>
+            </div>
+        </div>
+
+        <!-- 我的 -->
+        <div id="tab-profile" class="tab-page">
+            <div class="wx-header">
+                <h1>个人中心</h1>
+            </div>
+            <div class="profile-card">
+                <div class="avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="profile-info">
+                    <h3 id="wxNickname">微信用户</h3>
+                    <p>欢迎使用宏源汽车服务</p>
+                </div>
+            </div>
+            <div class="menu-list">
+                <div class="menu-item" onclick="switchTab('orders', document.querySelector('[data-tab=orders]'))">
+                    <i class="fas fa-history" style="color:#1a73e8"></i>
+                    <span>保养记录</span>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-bell" style="color:#e8710a"></i>
+                    <span>消息通知</span>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-question-circle" style="color:#0d904f"></i>
+                    <span>常见问题</span>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-phone" style="color:#d93025"></i>
+                    <span>联系客服</span>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

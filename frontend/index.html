@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宏源汽车服务管理系统</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 登录页面 -->
+    <div id="loginPage" class="page active">
+        <div class="login-container">
+            <div class="login-logo">
+                <i class="fas fa-car"></i>
+                <h1>宏源汽车服务</h1>
+                <p>管理系统</p>
+            </div>
+            <div class="login-form">
+                <div class="form-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="username" placeholder="请输入用户名" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="请输入密码">
+                </div>
+                <button onclick="doLogin()" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i> 登 录
+                </button>
+                <p class="login-tip">默认账号: admin / admin123</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主页面 -->
+    <div id="mainPage" class="page">
+        <!-- 顶部导航 -->
+        <header class="header">
+            <div class="header-left">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <i class="fas fa-car"></i>
+                    <span>宏源汽车服务管理系统</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="notification-bell" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="notifBadge">0</span>
+                </div>
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="currentUser">管理员</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <button class="btn-logout" onclick="doLogout()">
+                    <i class="fas fa-sign-out-alt"></i> 退出
+                </button>
+            </div>
+        </header>
+
+        <!-- 通知面板 -->
+        <div id="notificationPanel" class="notification-panel hidden">
+            <div class="panel-header">
+                <h3>消息通知</h3>
+                <button onclick="markAllRead()">全部已读</button>
+            </div>
+            <div class="panel-body" id="notifList"></div>
+        </div>
+
+        <!-- 侧边栏 -->
+        <aside class="sidebar" id="sidebar">
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-page="dashboard" onclick="switchPage('dashboard', this)">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>工作台</span>
+                </a>
+                <a href="#" class="nav-item" data-page="orders" onclick="switchPage('orders', this)">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>接车开单</span>
+                </a>
+                <a href="#" class="nav-item" data-page="customers" onclick="switchPage('customers', this)">
+                    <i class="fas fa-users"></i>
+                    <span>客户管理</span>
+                </a>
+                <a href="#" class="nav-item" data-page="inventory" onclick="switchPage('inventory', this)">
+                    <i class="fas fa-boxes"></i>
+                    <span>配件库存</span>
+                </a>
+                <a href="#" class="nav-item" data-page="payments" onclick="switchPage('payments', this)">
+                    <i class="fas fa-cash-register"></i>
+                    <span>收银结算</span>
+                </a>
+                <a href="#" class="nav-item" data-page="stats" onclick="switchPage('stats', this)">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>数据统计</span>
+                </a>
+                <a href="#" class="nav-item" data-page="employees" onclick="switchPage('employees', this)">
+                    <i class="fas fa-user-tie"></i>
+                    <span>员工管理</span>
+                </a>
+                <a href="#" class="nav-item" data-page="hardware" onclick="switchPage('hardware', this)">
+                    <i class="fas fa-print"></i>
+                    <span>硬件对接</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content" id="mainContent">
+            <!-- 工作台 -->
+            <div id="page-dashboard" class="content-page active">
+                <div class="page-header">
+                    <h2><i class="fas fa-tachometer-alt"></i> 工作台</h2>
+                    <p class="page-desc">今日经营概览</p>
+                </div>
+                <div class="stats-cards">
+                    <div class="stat-card blue">
+                        <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+                        <div class="stat-info">
+                            <p class="stat-label">今日营收</p>
+                            <h3 id="todayRevenue">¥0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon"><i class="fas fa-clipboard-check"></i></div>
+                        <div class="stat-info">
+                            <p class="stat-label">今日工单</p>
+                            <h3 id="todayOrders">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card orange">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-info">
+                            <p class="stat-label">服务客户</p>
+                            <h3 id="todayCustomers">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card red">
+                        <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div class="stat-info">
+                            <p class="stat-label">低库存预警</p>
+                            <h3 id="lowStockCount">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>工单状态统计</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="status-stats" id="orderStatusStats"></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>热门服务项目 TOP5</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="top-items" id="topItems"></div>
+                        </div>
+                    </div>
+                    <div class="card full-width">
+                        <div class="card-header">
+                            <h3>快速操作</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="quick-actions">
+                                <button class="quick-btn" onclick="switchPage('orders', document.querySelector('[data-page=orders]'))">
+                                    <i class="fas fa-plus-circle"></i>
+                                    <span>新建工单</span>
+                                </button>
+                                <button class="quick-btn" onclick="switchPage('customers', document.querySelector('[data-page=customers]'))">
+                                    <i class="fas fa-user-plus"></i>
+                                    <span>添加客户</span>
+                                </button>
+                                <button class="quick-btn" onclick="switchPage('inventory', document.querySelector('[data-page=inventory]'))">
+                                    <i class="fas fa-box-open"></i>
+                                    <span>入库登记</span>
+                                </button>
+                                <button class="quick-btn" onclick="printTest()">
+                                    <i class="fas fa-receipt"></i>
+                                    <span>打印测试</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 接车开单 -->
+            <div id="page-orders" class="content-page">
+                <div class="page-header">
+                    <h2><i class="fas fa-clipboard-list"></i> 接车开单</h2>
+                    <button class="btn-primary" onclick="openOrderModal()">
+                        <i class="fas fa-plus"></i> 新建工单
+                    </button>
+                </div>
+                <div class="filter-bar">
+                    <select id="orderStatusFilter" onchange="loadOrders()">
+                        <option value="">全部状态</option>
+                        <option value="pending">待处理</option>
+                        <option value="in_progress">维修中</option>
+                        <option value="waiting_parts">等配件</option>
+                        <option value="completed">已完成</option>
+                        <option value="cancelled">已取消</option>
+                    </select>
+                    <input type="text" id="orderKeyword" placeholder="搜索车牌/客户/工单号" oninput="loadOrders()">
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="ordersTable">
+                        <thead>
+                            <tr>
+                                <th>工单号</th>
+                                <th>客户</th>
+                                <th>车牌</th>
+                                <th>车辆</th>
+                                <th>金额</th>
+                                <th>状态</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 客户管理 -->
+            <div id="page-customers" class="content-page">
+                <div class="page-header">
+                    <h2><i class="fas fa-users"></i> 客户管理</h2>
+                    <button class="btn-primary" onclick="openCustomerModal()">
+                        <i class="fas fa-plus"></i> 添加客户
+                    </button>
+                </div>
+                <div class="filter-bar">
+                    <input type="text" id="customerKeyword" placeholder="搜索客户名/电话/车牌" oninput="loadCustomers()">
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="customersTable">
+                        <thead>
+                            <tr>
+                                <th>客户名</th>
+                                <th>电话</th>
+                                <th>车牌号</th>
+                                <th>车辆</th>
+                                <th>里程(km)</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 配件库存 -->
+            <div id="page-inventory" class="content-page">
+                <div class="page-header">
+                    <h2><i class="fas fa-boxes"></i> 配件库存</h2>
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="openInventoryModal()">
+                            <i class="fas fa-plus"></i> 添加配件
+                        </button>
+                        <button class="btn-secondary" onclick="openStockInModal()">
+                            <i class="fas fa-arrow-down"></i> 入库
+                        </button>
+                    </div>
+                </div>
+                <div class="filter-bar">
+                    <select id="inventoryCategory">
+                        <option value="">全部分类</option>
+                        <option value="tire">轮胎</option>
+                        <option value="battery">电瓶</option>
+                        <option value="chassis">底盘件</option>
+                        <option value="brake">刹车系统</option>
+                        <option value="engine">发动机</option>
+                        <option value="oil">机油</option>
+                        <option value="filter">滤芯</option>
+                        <option value="other">其他</option>
+                    </select>
+                    <input type="text" id="inventoryKeyword" placeholder="搜索配件名/编码/品牌" oninput="loadInventory()">
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="inventoryTable">
+                        <thead>
+                            <tr>
+                                <th>编码</th>
+                                <th>配件名称</th>
+                                <th>分类</th>
+                                <th>品牌</th>
+                                <th>规格</th>
+                                <th>库存</th>
+                                <th>成本价</th>
+                                <th>销售价</th>
+                                <th>库存状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 收银结算 -->
+            <div id="page-payments" class="content-page">
+                <div class="page-header">
+                    <h2><i class="fas fa-cash-register"></i> 收银结算</h2>
+                </div>
+                <div class="filter-bar">
+                    <input type="date" id="paymentStartDate" value="">
+                    <input type="date" id="paymentEndDate" value="">
+                    <button class="btn-primary" onclick="loadPayments()">
+                        <i class="fas fa-search"></i> 查询
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="paymentsTable">
+                        <thead>
+                            <tr>
+                                <th>支付时间</th>
+                                <th>工单号</th>
+                                <th>客户</th>
+                                <th>金额</th>
+                                <th>支付方式</th>
+                                <th>备注</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 数据统计 -->
+            <div id="page-stats" class="content-page">
+                <div class="page-header">
+                    <h2><i class="fas fa-chart-bar"></i> 数据统计</h2>
+                </div>
+                <div class="stats-controls">
+                    <div class="date-selector">
+                        <label>日期：</label>
+                        <input type="date" id="statsDate" onchange="loadDailyStats()">
+                        <button class="btn-primary" onclick="loadDailyStats()">查询日报</button>
+                    </div>
+                    <div class="date-selector">
+                        <label>月份：</label>
+                        <input type="month" id="statsMonth" onchange="loadMonthlyStats()">
+                        <button class="btn-primary" onclick="loadMonthlyStats()">查询月报</button>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="card">
+                        <div class="card-header"><h3>营收概览</h3></div>
+                        <div class="card-body stats-overview" id="statsOverview"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h3>日营收趋势</h3></div>
+                        <div class="card-body">
+                            <canvas id="dailyChart" height="200"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h3>热销配件 TOP10</h3></div>
+                        <div class="card-body" id="topSellingItems"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 员工管理 -->
+            <div id="page-employees" class="content-page">
+                <div class="page-header">
+                    <h2><i class="fas fa-user-tie"></i> 员工管理</h2>
+                    <button class="btn-primary" onclick="openEmployeeModal()">
+                        <i class="fas fa-plus"></i> 添加员工
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="employeesTable">
+                        <thead>
+                            <tr>
+                                <th>用户名</th>
+                                <th>姓名</th>
+                                <th>角色</th>
+                                <th>电话</th>
+                                <th>状态</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 硬件对接 -->
+            <div id="page-hardware" class="content-page">
+                <div class="page-header">
+                    <h2><i class="fas fa-print"></i> 硬件对接</h2>
+                </div>
+                <div class="hardware-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-receipt"></i> 小票打印机</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="hardware-status connected">
+                                <i class="fas fa-check-circle"></i> 已连接
+                            </div>
+                            <div class="form-group">
+                                <label>打印机型号</label>
+                                <input type="text" value="爱普生 TM-T82III" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>连接方式</label>
+                                <input type="text" value="USB / 网络 (192.168.1.100)" readonly>
+                            </div>
+                            <button class="btn-primary" onclick="testPrint()">
+                                <i class="fas fa-print"></i> 打印测试页
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-truck-lift"></i> 举升机状态</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="lift-status" id="liftStatus">
+                                <div class="lift-item">
+                                    <span class="lift-label">举升机 #1</span>
+                                    <span class="lift-state idle">空闲</span>
+                                </div>
+                                <div class="lift-item">
+                                    <span class="lift-label">举升机 #2</span>
+                                    <span class="lift-state in-use">使用中</span>
+                                </div>
+                            </div>
+                            <button class="btn-secondary" onclick="refreshLiftStatus()">
+                                <i class="fas fa-sync"></i> 刷新状态
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-broadcast-tower"></i> 硬件配置</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>打印机IP地址</label>
+                                <input type="text" id="printerIp" value="192.168.1.100">
+                            </div>
+                            <div class="form-group">
+                                <label>打印机端口</label>
+                                <input type="text" id="printerPort" value="9100">
+                            </div>
+                            <div class="form-group">
+                                <label>举升机通信端口</label>
+                                <input type="text" id="liftPort" value="COM3">
+                            </div>
+                            <button class="btn-primary" onclick="saveHardwareConfig()">
+                                <i class="fas fa-save"></i> 保存配置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 模态框：新建工单 -->
+        <div id="orderModal" class="modal hidden">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h3><i class="fas fa-clipboard-list"></i> 新建维修工单</h3>
+                    <button class="modal-close" onclick="closeModal('orderModal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>选择客户 *</label>
+                            <select id="orderCustomer" onchange="fillCustomerInfo()">
+                                <option value="">请选择客户</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>工单号</label>
+                            <input type="text" id="orderNo" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>车牌号</label>
+                            <input type="text" id="orderPlate" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>车辆信息</label>
+                            <input type="text" id="orderCar" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>当前里程(km)</label>
+                            <input type="number" id="orderMileage" placeholder="请输入里程数">
+                        </div>
+                        <div class="form-group">
+                            <label>指派技师</label>
+                            <select id="orderTechnician">
+                                <option value="">请选择技师</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>维修项目 / 配件</label>
+                        <div class="order-items" id="orderItems">
+                            <div class="order-item-row">
+                                <select class="item-type" onchange="updateItemRow(this)">
+                                    <option value="part">配件</option>
+                                    <option value="labor">工时</option>
+                                    <option value="service">服务</option>
+                                </select>
+                                <input type="text" class="item-name" placeholder="名称">
+                                <input type="number" class="item-qty" placeholder="数量" value="1" onchange="calcItemAmount(this)">
+                                <input type="number" class="item-price" placeholder="单价" onchange="calcItemAmount(this)">
+                                <span class="item-amount">¥0</span>
+                                <button class="btn-remove" onclick="removeItemRow(this)"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+                        <button class="btn-add-item" onclick="addItemRow()">
+                            <i class="fas fa-plus"></i> 添加项目
+                        </button>
+                    </div>
+                    <div class="form-group">
+                        <label>备注</label>
+                        <textarea id="orderRemark" rows="3" placeholder="故障描述或备注信息"></textarea>
+                    </div>
+                    <div class="order-summary">
+                        <div class="summary-row">
+                            <span>工时费合计：</span>
+                            <span id="laborTotal">¥0</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>总计金额：</span>
+                            <span id="orderTotal">¥0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeModal('orderModal')">取消</button>
+                    <button class="btn-primary" onclick="submitOrder()">
+                        <i class="fas fa-check"></i> 提交工单
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模态框：添加客户 -->
+        <div id="customerModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-user-plus"></i> 添加客户</h3>
+                    <button class="modal-close" onclick="closeModal('customerModal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>客户姓名 *</label>
+                            <input type="text" id="custName" placeholder="请输入客户姓名">
+                        </div>
+                        <div class="form-group">
+                            <label>手机号 *</label>
+                            <input type="tel" id="custPhone" placeholder="请输入手机号">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>车牌号</label>
+                            <input type="text" id="custPlate" placeholder="如：津A·88888">
+                        </div>
+                        <div class="form-group">
+                            <label>车辆品牌</label>
+                            <input type="text" id="custBrand" placeholder="如：大众">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>车辆型号</label>
+                            <input type="text" id="custModel" placeholder="如：朗逸">
+                        </div>
+                        <div class="form-group">
+                            <label>年款</label>
+                            <input type="text" id="custYear" placeholder="如：2020">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>车架号(VIN)</label>
+                            <input type="text" id="custVin" placeholder="请输入17位车架号">
+                        </div>
+                        <div class="form-group">
+                            <label>当前里程(km)</label>
+                            <input type="number" id="custMileage" placeholder="当前里程">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>备注</label>
+                        <textarea id="custRemark" rows="3" placeholder="客户备注信息"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeModal('customerModal')">取消</button>
+                    <button class="btn-primary" onclick="submitCustomer()">
+                        <i class="fas fa-check"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模态框：添加配件 -->
+        <div id="inventoryModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-box-open"></i> 添加配件</h3>
+                    <button class="modal-close" onclick="closeModal('inventoryModal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>配件编码</label>
+                            <input type="text" id="invCode" placeholder="如：TY-001">
+                        </div>
+                        <div class="form-group">
+                            <label>配件名称 *</label>
+                            <input type="text" id="invName" placeholder="如：205/55R16 米其林浩悦">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>分类</label>
+                            <select id="invCategory">
+                                <option value="tire">轮胎</option>
+                                <option value="battery">电瓶</option>
+                                <option value="chassis">底盘件</option>
+                                <option value="brake">刹车系统</option>
+                                <option value="engine">发动机</option>
+                                <option value="oil">机油</option>
+                                <option value="filter">滤芯</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>品牌</label>
+                            <input type="text" id="invBrand" placeholder="如：米其林">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>规格型号</label>
+                            <input type="text" id="invSpec" placeholder="如：205/55R16">
+                        </div>
+                        <div class="form-group">
+                            <label>单位</label>
+                            <input type="text" id="invUnit" value="个">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>初始库存</label>
+                            <input type="number" id="invQty" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>最低库存预警</label>
+                            <input type="number" id="invMinQty" value="5">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>成本价</label>
+                            <input type="number" id="invCostPrice" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label>销售价</label>
+                            <input type="number" id="invSellPrice" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>供应商</label>
+                        <input type="text" id="invSupplier" placeholder="供应商名称">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeModal('inventoryModal')">取消</button>
+                    <button class="btn-primary" onclick="submitInventory()">
+                        <i class="fas fa-check"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模态框：入库 -->
+        <div id="stockInModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-arrow-down"></i> 配件入库</h3>
+                    <button class="modal-close" onclick="closeModal('stockInModal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>选择配件</label>
+                        <select id="stockInItem">
+                            <option value="">请选择配件</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>入库数量</label>
+                        <input type="number" id="stockInQty" value="1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>备注</label>
+                        <input type="text" id="stockInRemark" placeholder="入库原因">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeModal('stockInModal')">取消</button>
+                    <button class="btn-primary" onclick="submitStockIn()">
+                        <i class="fas fa-check"></i> 确认入库
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模态框：添加员工 -->
+        <div id="employeeModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-user-tie"></i> 添加员工</h3>
+                    <button class="modal-close" onclick="closeModal('employeeModal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>用户名 *</label>
+                            <input type="text" id="empUsername" placeholder="登录账号">
+                        </div>
+                        <div class="form-group">
+                            <label>密码 *</label>
+                            <input type="password" id="empPassword" placeholder="登录密码">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>姓名 *</label>
+                            <input type="text" id="empName" placeholder="员工姓名">
+                        </div>
+                        <div class="form-group">
+                            <label>角色</label>
+                            <select id="empRole">
+                                <option value="technician">技师</option>
+                                <option value="reception">前台接待</option>
+                                <option value="manager">店长</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>手机号</label>
+                        <input type="tel" id="empPhone" placeholder="手机号">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeModal('employeeModal')">取消</button>
+                    <button class="btn-primary" onclick="submitEmployee()">
+                        <i class="fas fa-check"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模态框：结算 -->
+        <div id="paymentModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-cash-register"></i> 收银结算</h3>
+                    <button class="modal-close" onclick="closeModal('paymentModal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="payment-info" id="paymentOrderInfo"></div>
+                    <div class="form-group">
+                        <label>支付金额</label>
+                        <input type="number" id="paymentAmount" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>支付方式</label>
+                        <div class="payment-methods">
+                            <label class="pay-method active" onclick="selectPayMethod(this, 'cash')">
+                                <i class="fas fa-money-bill"></i> 现金
+                            </label>
+                            <label class="pay-method" onclick="selectPayMethod(this, 'wechat')">
+                                <i class="fab fa-weixin"></i> 微信
+                            </label>
+                            <label class="pay-method" onclick="selectPayMethod(this, 'alipay')">
+                                <i class="fab fa-alipay"></i> 支付宝
+                            </label>
+                            <label class="pay-method" onclick="selectPayMethod(this, 'bank_card')">
+                                <i class="fas fa-credit-card"></i> 银行卡
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>备注</label>
+                        <input type="text" id="paymentRemark" placeholder="支付备注">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeModal('paymentModal')">取消</button>
+                    <button class="btn-primary" onclick="submitPayment()">
+                        <i class="fas fa-check"></i> 确认收款
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
